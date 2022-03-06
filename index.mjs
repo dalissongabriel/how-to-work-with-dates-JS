@@ -24,139 +24,133 @@
  */
 import { strict as assert } from "assert";
 
-/**
- * @type Intl.DateTimeFormatOptions
- **/
-const options = {
-  day: "numeric",
-  month: "2-digit",
-  year: "numeric",
-};
+class DateUtils {
+  static _defaultDateTimeFormatOptions = {
+    day: "numeric",
+    month: "2-digit",
+    year: "numeric",
+  };
 
-const locale = "pt-br";
+  static _defaultLocale = "pt-br";
 
-//////////////////// START DATE FORMATATION ///////////////////////////
-
-// Scoped blocks to can redeclare constants
-{
-  const date = new Date("1999-03-30 00:01:46");
-  const actual = date.toLocaleDateString(locale, options);
-  const expected = "30/03/1999";
-  assert.equal(actual, expected);
-}
-
-{
-  const date = new Date("1999-03-30 01:06:00");
-  const actual = date.toLocaleDateString(locale, {
-    ...options,
-    month: "long",
-  });
-  const expected = "30 de março de 1999";
-  assert.equal(actual, expected);
-}
-
-{
-  const dateTime = new Date("1999-03-30 15:06:00");
-  const actual = dateTime.toLocaleDateString(locale, {
-    ...options,
-    month: "long",
-    weekday: "long",
-  });
-  const expected = "terça-feira, 30 de março de 1999";
-  assert.equal(actual, expected);
-}
-
-//////////////////// FINISH DATE FORMATATION ///////////////////////////
-
-//////////////////// START DATE CHANGE ///////////////////////////
-
-// How to change Day
-{
-  const dateTime = new Date("1999-03-22 15:06:00");
-  dateTime.setDate(29);
-
-  const actual = dateTime.toLocaleDateString(locale, {
-    ...options,
-    month: "long",
-    weekday: "long",
-  });
-  const expected = "segunda-feira, 29 de março de 1999";
-  assert.equal(actual, expected);
-}
-
-// How to add 30 day in your date
-{
-  const dateTime = new Date("1999-03-22 15:06:00");
-  dateTime.setDate(dateTime.getDate() + 30);
-
-  const actual = dateTime.toLocaleDateString(locale);
-  const expected = "21/04/1999";
-  assert.equal(actual, expected);
-}
-
-// Create reusable function to add days in date
-{
-  /**
-   *
-   * @param {Date} originalDate
-   * @param {number} days
-   * @returns {Date} Original date + days
-   */
-  function addDays(originalDate, days) {
+  static addDays(originalDate, days) {
     const cloneDate = new Date(originalDate.valueOf());
     cloneDate.setDate(cloneDate.getDate() + days);
     return cloneDate;
   }
 
-  const dateTime = new Date("1999-03-22 15:06:00");
-  const incrementedDate = addDays(dateTime, 90);
-
-  const actual = incrementedDate.toLocaleDateString(locale);
-  const expected = "20/06/1999";
-  assert.equal(actual, expected);
-}
-
-{
-  /**
-   *
-   * @param {Date} originalDate
-   * @param {number} days
-   * @returns {Date} Original date + days
-   */
-  function subtractDays(originalDate, days) {
+  static subtractDays(originalDate, days) {
     const cloneDate = new Date(originalDate.valueOf());
     cloneDate.setDate(cloneDate.getDate() - days);
     return cloneDate;
   }
 
-  const dateTime = new Date("1999-03-22 15:06:00");
-  const incrementedDate = subtractDays(dateTime, 90);
-
-  const actual = incrementedDate.toLocaleDateString(locale);
-  const expected = "22/12/1998";
-  assert.equal(actual, expected);
-}
-
-// Create reusable function add months in date
-{
-  /**
-   *
-   * @param {Date} originalDate
-   * @param {number} months
-   * @returns {Date} Original date + months
-   */
-  function addMonths(originalDate, months) {
+  static addMonths(originalDate, months) {
     const cloneDate = new Date(originalDate.valueOf());
     cloneDate.setMonth(cloneDate.getMonth() + months);
     return cloneDate;
   }
 
-  const dateTime = new Date("1999-01-22 15:06:00");
-  const incrementedDate = addMonths(dateTime, 2);
+  static subtractMonths(originalDate, months) {
+    const cloneDate = new Date(originalDate.valueOf());
+    cloneDate.setMonth(cloneDate.getMonth() - months);
+    return cloneDate;
+  }
 
-  const actual = incrementedDate.toLocaleDateString(locale);
-  const expected = "22/03/1999";
-  assert.equal(actual, expected);
+  static addYears(originalDate, years) {
+    const cloneDate = new Date(originalDate.valueOf());
+    cloneDate.setFullYear(cloneDate.getFullYear() + years);
+    return cloneDate;
+  }
+
+  static subtractYears(originalDate, years) {
+    const cloneDate = new Date(originalDate.valueOf());
+    cloneDate.setFullYear(cloneDate.setFullYear() - years);
+    return cloneDate;
+  }
+
+  /**
+   * @param {Date} originalDate
+   * @param {Intl.DateTimeFormatOptions} options
+   * @param {string} locale
+   * @returns string
+   */
+  static formatToString(
+    originalDate,
+    options = DateUtils._defaultDateTimeFormatOptions,
+    locale = DateUtils._defaultLocale
+  ) {
+    return originalDate.toLocaleDateString(locale, {
+      ...DateUtils._defaultDateTimeFormatOptions,
+      ...options,
+    });
+  }
+
+  static biggerThan(testeDate, targetDate) {
+    return Date.parse(testeDate) > Date.parse(targetDate);
+  }
+
+  static lessThan(testeDate, targetDate) {
+    return Date.parse(testeDate) < Date.parse(targetDate);
+  }
 }
 
-//////////////////// END DATE CHANGE ///////////////////////////
+//////////////////// START DATE FORMATATION ///////////////////////////
+
+// Scoped blocks to can redeclare constants
+{
+  const result = DateUtils.formatToString(new Date("1999-03-30 00:01:46"));
+  const expected = "30/03/1999";
+  assert.equal(result, expected);
+}
+
+{
+  const result = DateUtils.formatToString(new Date("1999-03-30 00:01:46"), {
+    month: "long",
+  });
+  const expected = "30 de março de 1999";
+  assert.equal(result, expected);
+}
+
+{
+  const result = DateUtils.formatToString(new Date("1999-03-30 00:01:46"), {
+    month: "long",
+    weekday: "long",
+  });
+  const expected = "terça-feira, 30 de março de 1999";
+  assert.equal(result, expected);
+}
+
+//////////////////// END DATE FORMATATION ///////////////////////////
+
+//////////////////// START DATE CHANGE ///////////////////////////
+
+// How to add 30 day in your date
+{
+  const updatedDate = DateUtils.addDays(new Date("1999-03-22 15:06:00"), 22);
+
+  const result = DateUtils.formatToString(updatedDate);
+  const expected = "13/04/1999";
+  assert.equal(result, expected);
+}
+
+// How to add 8 Months in your date
+{
+  const updatedDate = DateUtils.addMonths(new Date("1999-03-22 15:06:00"), 8);
+
+  const result = DateUtils.formatToString(updatedDate);
+  const expected = "22/11/1999";
+  assert.equal(result, expected);
+}
+{
+  const testDate = new Date("1999-03-30");
+  const targetDate = new Date("1999-03-29");
+
+  assert.equal(DateUtils.biggerThan(testDate, targetDate), true);
+}
+{
+  const testDate = new Date("2000-03-30");
+  const targetDate = new Date("2022-02-15");
+
+  assert.equal(DateUtils.lessThan(testDate, targetDate), true);
+}
